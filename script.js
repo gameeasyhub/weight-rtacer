@@ -8,6 +8,7 @@ const CHART_COLORS = {
 
 // ===== DOM ЭЛЕМЕНТЫ =====
 const elements = {
+    dateInput: document.getElementById('entry-date'),
     morningInput: document.getElementById('morning-weight'),
     eveningInput: document.getElementById('evening-weight'),
     saveBtn: document.getElementById('save-btn'),
@@ -72,8 +73,14 @@ function getDateFromKey(key) {
     return new Date(parts[0], parts[1] - 1, parts[2]);
 }
 
-// ===== СОХРАНЕНИЕ НОВОЙ ЗАПИСИ =====
+// ===== СОХРАНЕНИЕ НОВОЙ ЗАПИСИ (с выбранной датой) =====
 function saveEntry() {
+    const date = elements.dateInput.value;
+    if (!date) {
+        alert('⚠️ Выберите дату!');
+        return;
+    }
+
     const morning = parseFloat(elements.morningInput.value);
     const evening = parseFloat(elements.eveningInput.value);
 
@@ -82,14 +89,11 @@ function saveEntry() {
         return;
     }
 
-    const today = getTodayKey();
     let data = loadData();
-
-    // Ищем запись за сегодня
-    const existingIndex = data.findIndex(entry => entry.date === today);
+    const existingIndex = data.findIndex(entry => entry.date === date);
 
     const entry = {
-        date: today,
+        date: date,
         morning: isNaN(morning) ? null : morning,
         evening: isNaN(evening) ? null : evening,
     };
@@ -99,9 +103,7 @@ function saveEntry() {
         if (entry.morning !== null) data[existingIndex].morning = entry.morning;
         if (entry.evening !== null) data[existingIndex].evening = entry.evening;
     } else {
-        // Добавляем новую
         data.push(entry);
-        // Сортируем по дате
         data.sort((a, b) => a.date.localeCompare(b.date));
     }
 
@@ -129,17 +131,14 @@ function calculateStats(data) {
     const today = getTodayKey();
     const todayEntry = data.find(entry => entry.date === today);
 
-    // Утренние веса (не null)
     const morningWeights = data
         .filter(entry => entry.morning !== null)
         .map(entry => entry.morning);
 
-    // Вечерние веса (не null)
     const eveningWeights = data
         .filter(entry => entry.evening !== null)
         .map(entry => entry.evening);
 
-    // Средние
     const avgMorning = morningWeights.length > 0
         ? morningWeights.reduce((a, b) => a + b, 0) / morningWeights.length
         : null;
@@ -148,13 +147,11 @@ function calculateStats(data) {
         ? eveningWeights.reduce((a, b) => a + b, 0) / eveningWeights.length
         : null;
 
-    // Дневное изменение
     let dailyChange = null;
     if (todayEntry && todayEntry.morning !== null && todayEntry.evening !== null) {
         dailyChange = todayEntry.evening - todayEntry.morning;
     }
 
-    // Общая динамика (первый утренний vs последний утренний)
     let totalDynamics = null;
     const firstMorning = data.find(entry => entry.morning !== null);
     const lastMorning = [...data].reverse().find(entry => entry.morning !== null);
@@ -178,7 +175,6 @@ function updateUI() {
     const data = loadData();
     const stats = calculateStats(data);
 
-    // Статистика
     elements.todayMorning.textContent = formatWeight(stats.todayMorning);
     elements.todayEvening.textContent = formatWeight(stats.todayEvening);
 
@@ -203,41 +199,28 @@ function updateUI() {
         elements.totalDynamics.className = 'stat-value';
     }
 
-    // История
     renderHistory(data);
-
-    // График
     renderChart(data);
 
-    // Автозаполнение сегодняшней даты для удобства
-    const today = getTodayKey();
-    const todayEntry = data.find(entry => entry.date === today);
-    if (todayEntry) {
-        if (todayEntry.morning !== null) elements.morningInput.placeholder = `сегодня: ${todayEntry.morning} кг`;
-        if (todayEntry.evening !== null) elements.eveningInput.placeholder = `сегодня: ${todayEntry.evening} кг`;
-    } else {
-        elements.morningInput.placeholder = '68.5';
-        elements.eveningInput.placeholder = '69.2';
+    // Устанавливаем дату по умолчанию – сегодня
+    if (!elements.dateInput.value) {
+        elements.dateInput.value = getTodayKey();
     }
 }
 
 // ===== ИСТОРИЯ =====
 function renderHistory(data) {
     const container = elements.historyList;
-
     if (data.length === 0) {
         container.innerHTML = '<p class="empty-message">Пока нет записей. Добавь свой первый вес!</p>';
         return;
     }
 
-    // Показываем последние 30 записей (с конца)
     const reversed = [...data].reverse().slice(0, 30);
-
     let html = '';
     for (const entry of reversed) {
         const morning = entry.morning !== null ? entry.morning.toFixed(1) : '—';
         const evening = entry.evening !== null ? entry.evening.toFixed(1) : '—';
-
         let changeText = '';
         let changeClass = '';
         if (entry.morning !== null && entry.evening !== null) {
@@ -245,7 +228,6 @@ function renderHistory(data) {
             changeText = formatChange(diff);
             changeClass = diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat';
         }
-
         html += `
             <div class="history-item">
                 <span class="date">${formatFullDate(entry.date)}</span>
@@ -257,7 +239,6 @@ function renderHistory(data) {
             </div>
         `;
     }
-
     container.innerHTML = html;
 }
 
@@ -267,29 +248,24 @@ let currentPeriod = 'all';
 
 function getFilteredData(data, period) {
     if (period === 'all') return data;
-
     const now = new Date();
     let cutoff = new Date(now);
-
     if (period === 'week') {
         cutoff.setDate(now.getDate() - 7);
     } else if (period === 'month') {
         cutoff.setMonth(now.getMonth() - 1);
     }
-
     const cutoffStr = cutoff.toISOString().split('T')[0];
     return data.filter(entry => entry.date >= cutoffStr);
 }
 
 function renderChart(data) {
     const filtered = getFilteredData(data, currentPeriod);
-
     if (filtered.length === 0) {
         if (chartInstance) {
             chartInstance.destroy();
             chartInstance = null;
         }
-        // Показываем пустое состояние
         const ctx = elements.chartCanvas.getContext('2d');
         ctx.clearRect(0, 0, elements.chartCanvas.width, elements.chartCanvas.height);
         ctx.fillStyle = '#999';
@@ -300,10 +276,8 @@ function renderChart(data) {
     }
 
     const labels = filtered.map(entry => formatDate(entry.date));
-
     const morningData = filtered.map(entry => entry.morning);
     const eveningData = filtered.map(entry => entry.evening);
-
     const ctx = elements.chartCanvas.getContext('2d');
 
     if (chartInstance) {
@@ -361,9 +335,7 @@ function renderChart(data) {
             scales: {
                 y: {
                     beginAtZero: false,
-                    grid: {
-                        color: CHART_COLORS.grid,
-                    },
+                    grid: { color: CHART_COLORS.grid },
                     ticks: {
                         callback: function(value) {
                             return value.toFixed(1) + ' кг';
@@ -371,9 +343,7 @@ function renderChart(data) {
                     }
                 },
                 x: {
-                    grid: {
-                        display: false,
-                    }
+                    grid: { display: false }
                 }
             },
             interaction: {
@@ -384,7 +354,7 @@ function renderChart(data) {
     });
 }
 
-// ===== ПЕРИОДЫ ГРАФИКА =====
+// ===== ПЕРИОДЫ =====
 function setPeriod(period) {
     currentPeriod = period;
     elements.chartBtns.forEach(btn => {
@@ -404,10 +374,8 @@ function clearAll() {
 
 // ===== УВЕДОМЛЕНИЯ =====
 function showNotification(text) {
-    // Простая импровизированная нотификация
     const existing = document.querySelector('.toast-notification');
     if (existing) existing.remove();
-
     const toast = document.createElement('div');
     toast.className = 'toast-notification';
     toast.textContent = text;
@@ -430,11 +398,9 @@ function showNotification(text) {
         textAlign: 'center',
     });
     document.body.appendChild(toast);
-
     requestAnimationFrame(() => {
         toast.style.opacity = '1';
     });
-
     setTimeout(() => {
         toast.style.opacity = '0';
         setTimeout(() => toast.remove(), 300);
@@ -443,12 +409,12 @@ function showNotification(text) {
 
 // ===== ИНИЦИАЛИЗАЦИЯ =====
 function init() {
-    // Загружаем данные
+    // Устанавливаем сегодняшнюю дату в поле ввода
+    elements.dateInput.value = getTodayKey();
+
     updateUI();
 
-    // События
     elements.saveBtn.addEventListener('click', saveEntry);
-
     elements.clearBtn.addEventListener('click', clearAll);
 
     elements.chartBtns.forEach(btn => {
@@ -457,7 +423,6 @@ function init() {
         });
     });
 
-    // Enter в полях ввода
     elements.morningInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') saveEntry();
     });
@@ -465,12 +430,7 @@ function init() {
         if (e.key === 'Enter') saveEntry();
     });
 
-    // Автосохранение при потере фокуса (опционально)
-    // но оставим только по кнопке или Enter
-
-    // Активируем кнопку "Всё время"
     document.querySelector('.chart-btn[data-period="all"]')?.classList.add('active');
 }
 
-// Запуск
 document.addEventListener('DOMContentLoaded', init);
