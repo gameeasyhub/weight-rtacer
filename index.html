@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Трекер веса</title>
+
+    <!-- ✅ ФАВИКОН (красивый SVG) -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+
+    <!-- Стили -->
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- Chart.js для графиков -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- Шапка -->
+        <header>
+            <h1>⚖️ Трекер веса</h1>
+            <p class="subtitle">Утром и вечером — контролируй прогресс!</p>
+        </header>
+
+        <!-- Карточка: добавить запись -->
+        <div class="card">
+            <h2>📝 Записать вес</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="morning-weight">🌅 Утро (кг)</label>
+                    <input type="number" id="morning-weight" step="0.1" placeholder="68.5" />
+                </div>
+                <div class="form-group">
+                    <label for="evening-weight">🌆 Вечер (кг)</label>
+                    <input type="number" id="evening-weight" step="0.1" placeholder="69.2" />
+                </div>
+            </div>
+            <button class="btn btn-success" id="save-btn">💾 Сохранить сегодня</button>
+        </div>
+
+        <!-- Карточка: статистика -->
+        <div class="card" id="stats-card">
+            <h2>📊 Текущая статистика</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">Сегодня утром</span>
+                    <span class="stat-value" id="today-morning">—</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Сегодня вечером</span>
+                    <span class="stat-value" id="today-evening">—</span>
+                </div>
+                <div class="stat-item highlight">
+                    <span class="stat-label">Изменение за день</span>
+                    <span class="stat-value" id="daily-change">0 кг</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Средний утренний вес</span>
+                    <span class="stat-value" id="avg-morning">—</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Средний вечерний вес</span>
+                    <span class="stat-value" id="avg-evening">—</span>
+                </div>
+                <div class="stat-item highlight">
+                    <span class="stat-label">Общая динамика (первый → последний)</span>
+                    <span class="stat-value" id="total-dynamics">0 кг</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карточка: график -->
+        <div class="card">
+            <h2>📈 График изменения веса</h2>
+            <div class="chart-wrapper">
+                <canvas id="weight-chart"></canvas>
+            </div>
+            <div class="chart-controls">
+                <button class="btn btn-secondary chart-btn active" data-period="all">📅 Всё время</button>
+                <button class="btn btn-secondary chart-btn" data-period="week">📆 Неделя</button>
+                <button class="btn btn-secondary chart-btn" data-period="month">📆 Месяц</button>
+            </div>
+        </div>
+
+        <!-- Карточка: история -->
+        <div class="card">
+            <h2>📋 История записей</h2>
+            <div id="history-list">
+                <p class="empty-message">Пока нет записей. Добавь свой первый вес!</p>
+            </div>
+            <button class="btn btn-danger" id="clear-btn">🗑️ Очистить всю историю</button>
+        </div>
+
+        <!-- Подвал -->
+        <footer>
+            <p>Сделано с ❤️ для здорового тела. Все данные хранятся в твоём браузере.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
