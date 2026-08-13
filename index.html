@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Трекер веса</title>
 
-    <!-- Встроенный фавикон (SVG data URI) – для вкладки браузера и рабочего стола (iOS поддерживает) -->
+    <!-- Иконка для вкладки браузера (SVG data URI) -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2311998e'/%3E%3Cstop offset='100%25' stop-color='%2338ef7d'/%3E%3C/linearGradient%3E%3Cstyle%3E@media (prefers-color-scheme: dark) { rect { fill: %230d6b63 !important; } .stroke { stroke: %23e0e0e0 !important; } .fill { fill: %23e0e0e0 !important; } }%3C/style%3E%3C/defs%3E%3Crect width='200' height='200' rx='40' fill='url(%23g)'/%3E%3Ccircle cx='100' cy='100' r='60' fill='none' stroke='white' stroke-width='4' class='stroke'/%3E%3Ctext x='100' y='118' font-family='%27Courier New%27, monospace' font-size='56' font-weight='bold' fill='white' text-anchor='middle' class='fill'%3E70%3C/text%3E%3Ctext x='100' y='148' font-family='Arial, sans-serif' font-size='14' fill='rgba(255,255,255,0.7)' text-anchor='middle' class='fill'%3Ekg%3C/text%3E%3C/svg%3E" />
-    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2311998e'/%3E%3Cstop offset='100%25' stop-color='%2338ef7d'/%3E%3C/linearGradient%3E%3Cstyle%3E@media (prefers-color-scheme: dark) { rect { fill: %230d6b63 !important; } .stroke { stroke: %23e0e0e0 !important; } .fill { fill: %23e0e0e0 !important; } }%3C/style%3E%3C/defs%3E%3Crect width='200' height='200' rx='40' fill='url(%23g)'/%3E%3Ccircle cx='100' cy='100' r='60' fill='none' stroke='white' stroke-width='4' class='stroke'/%3E%3Ctext x='100' y='118' font-family='%27Courier New%27, monospace' font-size='56' font-weight='bold' fill='white' text-anchor='middle' class='fill'%3E70%3C/text%3E%3Ctext x='100' y='148' font-family='Arial, sans-serif' font-size='14' fill='rgba(255,255,255,0.7)' text-anchor='middle' class='fill'%3Ekg%3C/text%3E%3C/svg%3E" />
+
+    <!-- Иконка для рабочего стола телефона (PNG base64) – ЗАМЕНИТЕ НА СВОЙ PNG -->
+    <link rel="apple-touch-icon" href="data:image/png;base64,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" />
 
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
@@ -15,7 +17,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Заголовок (без эмодзи) -->
         <header>
             <h1>Трекер веса</h1>
         </header>
@@ -95,7 +96,6 @@
             <button class="btn btn-danger" id="clear-btn">🗑️ Очистить всю историю</button>
         </div>
 
-        <!-- Подвал -->
         <footer>
             <p>Сделано с ❤️ для здорового тела. Все данные хранятся в твоём браузере.</p>
         </footer>
