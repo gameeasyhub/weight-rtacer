@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Трекер веса</title>
 
-    <!-- Иконки (внешние файлы, лежат в той же папке) -->
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
-    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <!-- ✅ Иконка на вкладке браузера – используем твой icon.svg -->
+    <link rel="icon" type="image/svg+xml" href="icon.svg" />
+
+    <!-- ✅ Иконка для рабочего стола телефона (iOS/Android) – тоже icon.svg (некоторые версии iOS поддерживают SVG) -->
+    <link rel="apple-touch-icon" href="icon.svg" />
+
+    <!-- Для Android Chrome (если нужен манифест) – но и без него работает -->
+    <link rel="manifest" href="site.webmanifest" />
 
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
